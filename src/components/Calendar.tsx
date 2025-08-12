@@ -1,15 +1,11 @@
 "use client";
 
+import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useState } from "react";
 
 interface User {
   name: string;
   color: string;
-}
-
-interface DayEvent {
-  date: string;
-  user: User;
 }
 
 const users: User[] = [
@@ -21,7 +17,7 @@ const users: User[] = [
 
 export default function Calendar() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [events, setEvents] = useState<DayEvent[]>([]);
+  const { events, loading, error, addEvent, removeEvent } = useCalendarEvents();
 
   // Obtenir la date actuelle
   const today = new Date();
@@ -60,29 +56,61 @@ export default function Calendar() {
     return events.filter((event) => event.date === dateStr);
   };
 
-  const handleDayClick = (date: Date) => {
+  const handleDayClick = async (date: Date) => {
     if (!selectedUser) return;
 
     const dateStr = formatDate(date);
-    const existingEventIndex = events.findIndex(
-      (event) => event.date === dateStr && event.user.name === selectedUser.name
+    const dayEvents = getEventsForDate(date);
+    const existingEvent = dayEvents.find(
+      (event) => event.user.name === selectedUser.name
     );
 
-    if (existingEventIndex >= 0) {
+    if (existingEvent) {
       // Supprimer l'événement de cet utilisateur spécifique
-      setEvents(events.filter((_, index) => index !== existingEventIndex));
+      await removeEvent(dateStr, selectedUser.name);
     } else {
       // Ajouter un nouvel événement pour cet utilisateur
-      setEvents([...events, { date: dateStr, user: selectedUser }]);
+      await addEvent({ date: dateStr, user: selectedUser });
     }
   };
 
   const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
+  // Affichage de chargement
+  if (loading) {
+    return (
+      <div className="max-w-9xl mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement du calendrier...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Affichage d'erreur
+  if (error) {
+    return (
+      <div className="max-w-9xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-red-800 font-semibold mb-2">
+            Erreur de chargement
+          </h2>
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    // max-w-4xl : définit une largeur maximale de 4xl (environ 56rem)
-    // mx-auto  : centre horizontalement le div (marges automatiques à gauche et à droite)
-    // p-6      : ajoute un padding (marge intérieure) de 1.5rem sur tous les côtés
     <div className="max-w-9xl mx-auto p-6">
       <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
         Calendrier WoW
@@ -192,10 +220,29 @@ export default function Calendar() {
                     })}
                   </div>
                 )}
+
+                {/* Indicateur de sélection */}
+                {selectedUser && !hasUserEvent && (
+                  <div className="text-xs text-gray-400 mt-2 relative z-10">
+                    Cliquez pour ajouter {selectedUser.name}
+                  </div>
+                )}
+
+                {/* Indicateur de suppression */}
+                {selectedUser && hasUserEvent && (
+                  <div className="text-xs text-gray-600 mt-2 relative z-10 font-medium">
+                    Cliquez pour retirer {selectedUser.name}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
+      </div>
+
+      {/* Statut de synchronisation */}
+      <div className="mt-4 text-center text-sm text-gray-500">
+        <p>✅ Données synchronisées avec Vercel KV</p>
       </div>
     </div>
   );
