@@ -1,6 +1,6 @@
 # 🎮 Calendrier WoW
 
-Un calendrier collaboratif pour organiser les disponibilités de votre équipe WoW, développé avec Next.js et Vercel KV.
+Un calendrier collaboratif pour organiser les disponibilités de votre équipe WoW, développé avec Next.js et Neon PostgreSQL.
 
 ## ✨ Fonctionnalités
 
@@ -24,7 +24,7 @@ Un calendrier collaboratif pour organiser les disponibilités de votre équipe W
 
 ### 💾 **Persistance des données**
 
-- API REST avec Vercel KV pour la sauvegarde
+- Base de données PostgreSQL avec Neon
 - Synchronisation automatique en temps réel
 - Données persistées globalement
 
@@ -43,12 +43,18 @@ cd wow_calendar
 npm install
 ```
 
-### 3. **Déployer sur Vercel**
+### 3. **Configurer Neon PostgreSQL**
+
+1. Créez une base de données sur [neon.tech](https://neon.tech)
+2. Nommez-la `neon-wow-calendar`
+3. Copiez l'URL de connexion
+
+### 4. **Déployer sur Vercel**
 
 1. Allez sur [vercel.com](https://vercel.com)
 2. Connectez votre compte GitHub
 3. Importez le repository `wow_calendar`
-4. Créez une base de données KV dans le dashboard Vercel
+4. Ajoutez la variable d'environnement `DATABASE_URL` avec votre URL Neon
 5. Déploiement automatique ! 🎉
 
 ## 🔧 Développement local
@@ -62,6 +68,9 @@ npm i -g vercel
 # Lier le projet
 vercel link
 
+# Ajouter la variable d'environnement
+vercel env add DATABASE_URL
+
 # Récupérer les variables d'environnement
 vercel env pull .env.local
 
@@ -74,10 +83,7 @@ npm run dev
 1. Créez un fichier `.env.local` :
 
 ```env
-KV_URL=your_kv_url_here
-KV_REST_API_URL=your_kv_rest_api_url_here
-KV_REST_API_TOKEN=your_kv_rest_api_token_here
-KV_REST_API_READ_ONLY_TOKEN=your_kv_read_only_token_here
+DATABASE_URL=postgresql://username:password@ep-xxx-xxx-xxx.region.aws.neon.tech/neondb?sslmode=require
 ```
 
 2. Démarrer l'application :
@@ -128,7 +134,7 @@ Sauvegarde les événements du calendrier
 
 - **Frontend** : Next.js 15, React 19, TypeScript
 - **Styling** : Tailwind CSS 4
-- **Base de données** : Vercel KV (Redis)
+- **Base de données** : Neon PostgreSQL
 - **Déploiement** : Vercel
 - **Versioning** : Git
 
@@ -142,8 +148,10 @@ src/
 │   └── layout.tsx             # Layout global
 ├── components/
 │   └── Calendar.tsx           # Composant calendrier
-└── hooks/
-    └── useCalendarEvents.ts   # Hook personnalisé
+├── hooks/
+│   └── useCalendarEvents.ts   # Hook personnalisé
+└── lib/
+    └── db.ts                  # Configuration base de données
 ```
 
 ## 🎯 Utilisation
@@ -155,16 +163,17 @@ src/
 
 ## 🔍 Monitoring
 
-- **Vercel Dashboard** : Surveillez l'utilisation de KV
+- **Neon Dashboard** : Surveillez l'utilisation de votre base de données
+- **Vercel Dashboard** : Surveillez les performances de votre application
 - **Logs** : Consultez les logs d'API dans Vercel
-- **Analytics** : Suivez les performances de votre application
 
 ## 🎮 Avantages
 
-- ✅ **Gratuit** : Vercel KV offre 100MB de stockage gratuit
-- ✅ **Global** : Données répliquées globalement
+- ✅ **Gratuit** : Neon offre 3GB de stockage gratuit
+- ✅ **PostgreSQL** : Base de données relationnelle robuste
+- ✅ **Serverless** : Pas de gestion d'infrastructure
+- ✅ **Global** : Réplication automatique
 - ✅ **Rapide** : Latence ultra-faible
-- ✅ **Simple** : Configuration automatique
 - ✅ **Sécurisé** : Chiffrement en transit et au repos
 - ✅ **Collaboratif** : Plusieurs utilisateurs simultanés
 

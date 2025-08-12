@@ -1,3 +1,4 @@
+import { addEvent as dbAddEvent, removeEvent as dbRemoveEvent } from "@/lib/db";
 import { useCallback, useEffect, useState } from "react";
 
 interface User {
@@ -49,37 +50,6 @@ export function useCalendarEvents() {
     }
   }, []);
 
-  // Sauvegarder les événements vers l'API
-  const saveEvents = useCallback(async (newEvents: DayEvent[]) => {
-    try {
-      // Vérification que newEvents est bien un tableau
-      if (!Array.isArray(newEvents)) {
-        console.error("newEvents n'est pas un tableau:", newEvents);
-        return;
-      }
-
-      const response = await fetch("/api/events", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ events: newEvents }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la sauvegarde des événements");
-      }
-
-      const data = await response.json();
-      console.log("Événements sauvegardés:", data);
-    } catch (err) {
-      console.error("Erreur lors de la sauvegarde des événements:", err);
-      setError(
-        err instanceof Error ? err.message : "Erreur lors de la sauvegarde"
-      );
-    }
-  }, []);
-
   // Ajouter un événement
   const addEvent = useCallback(
     async (event: DayEvent) => {
@@ -89,11 +59,19 @@ export function useCalendarEvents() {
         return;
       }
 
-      const newEvents = [...events, event];
-      setEvents(newEvents);
-      await saveEvents(newEvents);
+      try {
+        // Ajouter l'événement directement en base de données
+        await dbAddEvent(event.date, event.user.name, event.user.color);
+
+        // Mettre à jour l'état local
+        const newEvents = [...events, event];
+        setEvents(newEvents);
+      } catch (err) {
+        console.error("Erreur lors de l'ajout de l'événement:", err);
+        setError(err instanceof Error ? err.message : "Erreur lors de l'ajout");
+      }
     },
-    [events, saveEvents]
+    [events]
   );
 
   // Supprimer un événement
@@ -108,13 +86,23 @@ export function useCalendarEvents() {
         return;
       }
 
-      const newEvents = events.filter(
-        (event) => !(event.date === date && event.user.name === userName)
-      );
-      setEvents(newEvents);
-      await saveEvents(newEvents);
+      try {
+        // Supprimer l'événement directement en base de données
+        await dbRemoveEvent(date, userName);
+
+        // Mettre à jour l'état local
+        const newEvents = events.filter(
+          (event) => !(event.date === date && event.user.name === userName)
+        );
+        setEvents(newEvents);
+      } catch (err) {
+        console.error("Erreur lors de la suppression de l'événement:", err);
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la suppression"
+        );
+      }
     },
-    [events, saveEvents]
+    [events]
   );
 
   // Charger les événements au montage du composant

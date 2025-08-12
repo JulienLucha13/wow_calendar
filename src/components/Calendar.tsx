@@ -121,7 +121,7 @@ export default function Calendar() {
   }
 
   return (
-    <div className="max-w-9xl mx-auto p-6">
+    <div className="max-w-9xl mx-auto p-6" style={{ width: "80%" }}>
       <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
         Calendrier WoW
       </h1>
@@ -238,7 +238,7 @@ export default function Calendar() {
 
       {/* Statut de synchronisation */}
       <div className="mt-4 text-center text-sm text-gray-500">
-        <p>✅ Données synchronisées avec Vercel KV</p>
+        <p>✅ Données synchronisées avec Neon PostgreSQL</p>
         {Array.isArray(events) && events.length === 0 && (
           <p className="mt-2 text-gray-400">
             Aucun événement enregistré - le calendrier est vide

@@ -1,4 +1,4 @@
-import { kv } from "@vercel/kv";
+import { getAllEvents, initDatabase, saveAllEvents } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 interface DayEvent {
@@ -11,20 +11,11 @@ interface DayEvent {
 
 export async function GET() {
   try {
-    // Récupérer tous les événements depuis KV
-    const events = await kv.get<DayEvent[]>("calendar_events");
+    // Initialiser la base de données si nécessaire
+    await initDatabase();
 
-    // Gestion robuste des cas où il n'y a pas d'événements
-    if (events === null || events === undefined) {
-      // Aucun événement trouvé, retourner un tableau vide
-      return NextResponse.json({ events: [] });
-    }
-
-    // Vérification que events est bien un tableau
-    if (!Array.isArray(events)) {
-      console.warn("Les événements récupérés ne sont pas un tableau:", events);
-      return NextResponse.json({ events: [] });
-    }
+    // Récupérer tous les événements depuis Neon
+    const events = await getAllEvents();
 
     return NextResponse.json({ events });
   } catch (error) {
@@ -100,8 +91,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Sauvegarder les événements dans KV
-    await kv.set("calendar_events", events);
+    // Initialiser la base de données si nécessaire
+    await initDatabase();
+
+    // Sauvegarder les événements dans Neon
+    await saveAllEvents(events);
 
     return NextResponse.json({
       success: true,
