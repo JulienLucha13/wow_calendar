@@ -1,13 +1,5 @@
 import { neon } from "@neondatabase/serverless";
 
-// Configuration de la base de données Neon
-if (!process.env.DATABASE_URL_CUSTOM) {
-  throw new Error(
-    "DATABASE_URL n'est pas défini dans les variables d'environnement"
-  );
-}
-const sql = neon(process.env.DATABASE_URL_CUSTOM);
-
 // Interface pour les événements en base de données
 export interface DbEvent {
   id?: number;
@@ -26,9 +18,21 @@ export interface DayEvent {
   };
 }
 
+// Fonction pour obtenir la connexion SQL
+function getSql() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      "DATABASE_URL n'est pas défini dans les variables d'environnement"
+    );
+  }
+  return neon(process.env.DATABASE_URL);
+}
+
 // Initialisation de la base de données
 export async function initDatabase() {
   try {
+    const sql = getSql();
+
     // Créer la table events si elle n'existe pas
     await sql`
       CREATE TABLE IF NOT EXISTS events (
@@ -54,6 +58,8 @@ export async function initDatabase() {
 // Fonctions pour manipuler les événements
 export async function getAllEvents(): Promise<DayEvent[]> {
   try {
+    const sql = getSql();
+
     const events = (await sql`
       SELECT id, date, user_name, user_color, created_at
       FROM events
@@ -79,6 +85,8 @@ export async function addEvent(
   userColor: string
 ): Promise<void> {
   try {
+    const sql = getSql();
+
     await sql`
       INSERT INTO events (date, user_name, user_color)
       VALUES (${date}, ${userName}, ${userColor})
@@ -95,6 +103,8 @@ export async function removeEvent(
   userName: string
 ): Promise<void> {
   try {
+    const sql = getSql();
+
     await sql`
       DELETE FROM events
       WHERE date = ${date} AND user_name = ${userName}
@@ -107,6 +117,8 @@ export async function removeEvent(
 
 export async function saveAllEvents(events: DayEvent[]): Promise<void> {
   try {
+    const sql = getSql();
+
     // Supprimer tous les événements existants
     await sql`DELETE FROM events`;
 
@@ -127,5 +139,3 @@ export async function saveAllEvents(events: DayEvent[]): Promise<void> {
     throw error;
   }
 }
-
-export { sql };
