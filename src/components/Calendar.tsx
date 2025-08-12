@@ -73,14 +73,19 @@ export default function Calendar() {
 
       if (existingEvent) {
         // Supprimer l'événement de cet utilisateur spécifique
+        console.log("🗑️ Suppression de l'événement existant");
         await removeEvent(dateStr, selectedUser.name);
       } else {
         // Ajouter un nouvel événement pour cet utilisateur
+        console.log("➕ Ajout d'un nouvel événement");
         await addEvent({ date: dateStr, user: selectedUser });
       }
     } catch (err) {
-      console.error("Erreur lors de la manipulation de l'événement:", err);
-      // L'erreur sera gérée par le hook useCalendarEvents
+      console.error("❌ Erreur lors de la manipulation de l'événement:", err);
+      // Afficher une notification d'erreur à l'utilisateur
+      alert(
+        `Erreur: ${err instanceof Error ? err.message : "Erreur inconnue"}`
+      );
     }
   };
 
