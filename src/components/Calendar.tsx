@@ -273,7 +273,7 @@ export default function Calendar() {
                             {event.user.name}
                           </div>
                           {event.time && (
-                            <div className="text-white text-xs font-bold mt-1 outline outline-1 outline-black">
+                            <div className="text-white text-xs font-bold mt-1">
                               {event.time}
                             </div>
                           )}
