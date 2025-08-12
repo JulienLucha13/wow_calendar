@@ -1,4 +1,3 @@
-import { addEvent as dbAddEvent, removeEvent as dbRemoveEvent } from "@/lib/db";
 import { useCallback, useEffect, useState } from "react";
 
 interface User {
@@ -60,11 +59,21 @@ export function useCalendarEvents() {
       }
 
       try {
-        // Ajouter l'événement directement en base de données
-        await dbAddEvent(event.date, event.user.name, event.user.color);
+        // Ajouter l'événement via l'API REST
+        const newEvents = [...events, event];
+        const response = await fetch("/api/events", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ events: newEvents }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'ajout de l'événement");
+        }
 
         // Mettre à jour l'état local
-        const newEvents = [...events, event];
         setEvents(newEvents);
       } catch (err) {
         console.error("Erreur lors de l'ajout de l'événement:", err);
@@ -87,13 +96,24 @@ export function useCalendarEvents() {
       }
 
       try {
-        // Supprimer l'événement directement en base de données
-        await dbRemoveEvent(date, userName);
-
-        // Mettre à jour l'état local
+        // Supprimer l'événement via l'API REST
         const newEvents = events.filter(
           (event) => !(event.date === date && event.user.name === userName)
         );
+
+        const response = await fetch("/api/events", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ events: newEvents }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Erreur lors de la suppression de l'événement");
+        }
+
+        // Mettre à jour l'état local
         setEvents(newEvents);
       } catch (err) {
         console.error("Erreur lors de la suppression de l'événement:", err);
