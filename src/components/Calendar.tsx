@@ -53,24 +53,34 @@ export default function Calendar() {
 
   const getEventsForDate = (date: Date) => {
     const dateStr = formatDate(date);
+    // Vérification que events est bien un tableau
+    if (!Array.isArray(events)) {
+      console.warn("events n'est pas un tableau:", events);
+      return [];
+    }
     return events.filter((event) => event.date === dateStr);
   };
 
   const handleDayClick = async (date: Date) => {
     if (!selectedUser) return;
 
-    const dateStr = formatDate(date);
-    const dayEvents = getEventsForDate(date);
-    const existingEvent = dayEvents.find(
-      (event) => event.user.name === selectedUser.name
-    );
+    try {
+      const dateStr = formatDate(date);
+      const dayEvents = getEventsForDate(date);
+      const existingEvent = dayEvents.find(
+        (event) => event.user.name === selectedUser.name
+      );
 
-    if (existingEvent) {
-      // Supprimer l'événement de cet utilisateur spécifique
-      await removeEvent(dateStr, selectedUser.name);
-    } else {
-      // Ajouter un nouvel événement pour cet utilisateur
-      await addEvent({ date: dateStr, user: selectedUser });
+      if (existingEvent) {
+        // Supprimer l'événement de cet utilisateur spécifique
+        await removeEvent(dateStr, selectedUser.name);
+      } else {
+        // Ajouter un nouvel événement pour cet utilisateur
+        await addEvent({ date: dateStr, user: selectedUser });
+      }
+    } catch (err) {
+      console.error("Erreur lors de la manipulation de l'événement:", err);
+      // L'erreur sera gérée par le hook useCalendarEvents
     }
   };
 
@@ -243,6 +253,11 @@ export default function Calendar() {
       {/* Statut de synchronisation */}
       <div className="mt-4 text-center text-sm text-gray-500">
         <p>✅ Données synchronisées avec Vercel KV</p>
+        {Array.isArray(events) && events.length === 0 && (
+          <p className="mt-2 text-gray-400">
+            Aucun événement enregistré - le calendrier est vide
+          </p>
+        )}
       </div>
     </div>
   );
