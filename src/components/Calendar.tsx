@@ -1,200 +1,250 @@
 "use client";
 
-import { neon } from "@neondatabase/serverless";
+import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+import { useState } from "react";
 
-// Interface pour les événements en base de données
-export interface DbEvent {
-  id?: number;
-  date: string;
-  user_name: string;
-  user_color: string;
-  created_at?: Date;
+interface User {
+  name: string;
+  color: string;
 }
 
-// Interface pour les événements dans l'application
-export interface DayEvent {
-  date: string;
-  user: {
-    name: string;
-    color: string;
-  };
-}
+const users: User[] = [
+  { name: "Flavio", color: "bg-blue-500" },
+  { name: "Dagreat", color: "bg-yellow-500" },
+  { name: "Aisen", color: "bg-pink-500" },
+  { name: "Naarz", color: "bg-purple-500" },
+];
 
-// Fonction pour obtenir la connexion SQL
-function getSql() {
-  console.log("🔧 getSql() appelé");
-  console.log("DATABASE_URL défini:", !!process.env.DATABASE_URL);
+export default function Calendar() {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { events, loading, error, addEvent, removeEvent } = useCalendarEvents();
 
-  if (!process.env.DATABASE_URL) {
-    console.error("❌ DATABASE_URL n'est pas défini");
-    throw new Error(
-      "DATABASE_URL n'est pas défini dans les variables d'environnement"
-    );
-  }
+  // Obtenir la date actuelle
+  const today = new Date();
+  const currentWeekStart = new Date(today);
 
-  console.log("✅ Connexion SQL créée");
-  return neon(process.env.DATABASE_URL);
-}
+  // Calculer le début de la semaine (lundi = 1, dimanche = 0)
+  const dayOfWeek = today.getDay();
+  const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Si dimanche, reculer de 6 jours, sinon reculer de (jour - 1)
+  currentWeekStart.setDate(today.getDate() - daysToSubtract);
 
-// Initialisation de la base de données
-export async function initDatabase() {
-  console.log("🔧 initDatabase() appelé");
-  try {
-    const sql = getSql();
-    console.log("✅ Connexion SQL obtenue");
-
-    // Créer la table events si elle n'existe pas
-    console.log("📝 Création de la table events...");
-    await sql`
-      CREATE TABLE IF NOT EXISTS events (
-        id SERIAL PRIMARY KEY,
-        date VARCHAR(10) NOT NULL,
-        user_name VARCHAR(50) NOT NULL,
-        user_color VARCHAR(20) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(date, user_name)
-      )
-    `;
-
-    console.log("✅ Base de données initialisée avec succès");
-  } catch (error) {
-    console.error(
-      "❌ Erreur lors de l'initialisation de la base de données:",
-      error
-    );
-    console.error(
-      "Stack trace:",
-      error instanceof Error ? error.stack : "Pas de stack trace"
-    );
-    throw error;
-  }
-}
-
-// Fonctions pour manipuler les événements
-export async function getAllEvents(): Promise<DayEvent[]> {
-  console.log("🔧 getAllEvents() appelé");
-  try {
-    const sql = getSql();
-    console.log("✅ Connexion SQL obtenue");
-
-    console.log("📝 Exécution de la requête SELECT...");
-    const events = (await sql`
-      SELECT id, date, user_name, user_color, created_at
-      FROM events
-      ORDER BY date ASC, created_at ASC
-    `) as DbEvent[];
-
-    console.log(
-      `✅ ${events.length} événements récupérés de la base de données:`,
-      events
-    );
-
-    const mappedEvents = events.map((event) => ({
-      date: event.date,
-      user: {
-        name: event.user_name,
-        color: event.user_color,
-      },
-    }));
-
-    console.log("✅ Événements mappés:", mappedEvents);
-    return mappedEvents;
-  } catch (error) {
-    console.error("❌ Erreur lors de la récupération des événements:", error);
-    console.error(
-      "Stack trace:",
-      error instanceof Error ? error.stack : "Pas de stack trace"
-    );
-    throw error;
-  }
-}
-
-export async function addEvent(
-  date: string,
-  userName: string,
-  userColor: string
-): Promise<void> {
-  console.log("🔧 addEvent() appelé avec:", { date, userName, userColor });
-  try {
-    const sql = getSql();
-    console.log("✅ Connexion SQL obtenue");
-
-    console.log("📝 Exécution de la requête INSERT...");
-    await sql`
-      INSERT INTO events (date, user_name, user_color)
-      VALUES (${date}, ${userName}, ${userColor})
-      ON CONFLICT (date, user_name) DO NOTHING
-    `;
-    console.log("✅ Événement ajouté avec succès");
-  } catch (error) {
-    console.error("❌ Erreur lors de l'ajout de l'événement:", error);
-    console.error(
-      "Stack trace:",
-      error instanceof Error ? error.stack : "Pas de stack trace"
-    );
-    throw error;
-  }
-}
-
-export async function removeEvent(
-  date: string,
-  userName: string
-): Promise<void> {
-  console.log("🔧 removeEvent() appelé avec:", { date, userName });
-  try {
-    const sql = getSql();
-    console.log("✅ Connexion SQL obtenue");
-
-    console.log("📝 Exécution de la requête DELETE...");
-    await sql`
-      DELETE FROM events
-      WHERE date = ${date} AND user_name = ${userName}
-    `;
-    console.log("✅ Événement supprimé avec succès");
-  } catch (error) {
-    console.error("❌ Erreur lors de la suppression de l'événement:", error);
-    console.error(
-      "Stack trace:",
-      error instanceof Error ? error.stack : "Pas de stack trace"
-    );
-    throw error;
-  }
-}
-
-export async function saveAllEvents(events: DayEvent[]): Promise<void> {
-  console.log("🔧 saveAllEvents() appelé avec:", events);
-  try {
-    const sql = getSql();
-    console.log("✅ Connexion SQL obtenue");
-
-    // Supprimer tous les événements existants
-    console.log("📝 Suppression de tous les événements existants...");
-    await sql`DELETE FROM events`;
-    console.log("✅ Tous les événements supprimés");
-
-    // Ajouter tous les nouveaux événements
-    if (events.length > 0) {
-      console.log("📝 Insertion des nouveaux événements...");
-      const values = events
-        .map(
-          (event) => `(${event.date}, ${event.user.name}, ${event.user.color})`
-        )
-        .join(", ");
-
-      console.log("Valeurs à insérer:", values);
-      await sql`INSERT INTO events (date, user_name, user_color) VALUES ${sql.unsafe(
-        values
-      )}`;
-      console.log(`✅ ${events.length} événements insérés avec succès`);
-    } else {
-      console.log("ℹ️ Aucun événement à insérer");
+  // Générer les jours pour la semaine actuelle et la suivante
+  const generateDays = () => {
+    const days = [];
+    for (let week = 0; week < 2; week++) {
+      for (let day = 0; day < 7; day++) {
+        const date = new Date(currentWeekStart);
+        date.setDate(currentWeekStart.getDate() + week * 7 + day);
+        days.push(date);
+      }
     }
-  } catch (error) {
-    console.error("❌ Erreur lors de la sauvegarde des événements:", error);
-    console.error(
-      "Stack trace:",
-      error instanceof Error ? error.stack : "Pas de stack trace"
+    return days;
+  };
+
+  const days = generateDays();
+
+  const formatDate = (date: Date) => {
+    return date.toISOString().split("T")[0];
+  };
+
+  const isToday = (date: Date) => {
+    return formatDate(date) === formatDate(today);
+  };
+
+  const getEventsForDate = (date: Date) => {
+    const dateStr = formatDate(date);
+    // Vérification que events est bien un tableau
+    if (!Array.isArray(events)) {
+      console.warn("events n'est pas un tableau:", events);
+      return [];
+    }
+    return events.filter((event) => event.date === dateStr);
+  };
+
+  const handleDayClick = async (date: Date) => {
+    if (!selectedUser) return;
+
+    try {
+      const dateStr = formatDate(date);
+      const dayEvents = getEventsForDate(date);
+      const existingEvent = dayEvents.find(
+        (event) => event.user.name === selectedUser.name
+      );
+
+      if (existingEvent) {
+        // Supprimer l'événement de cet utilisateur spécifique
+        await removeEvent(dateStr, selectedUser.name);
+      } else {
+        // Ajouter un nouvel événement pour cet utilisateur
+        await addEvent({ date: dateStr, user: selectedUser });
+      }
+    } catch (err) {
+      console.error("Erreur lors de la manipulation de l'événement:", err);
+      // L'erreur sera gérée par le hook useCalendarEvents
+    }
+  };
+
+  const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+  // Affichage de chargement
+  if (loading) {
+    return (
+      <div className="max-w-9xl mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement du calendrier...</p>
+          </div>
+        </div>
+      </div>
     );
-    throw error;
   }
+
+  // Affichage d'erreur
+  if (error) {
+    return (
+      <div className="max-w-9xl mx-auto p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-red-800 font-semibold mb-2">
+            Erreur de chargement
+          </h2>
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-9xl mx-auto p-6" style={{ width: "80%" }}>
+      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+        Calendrier WoW
+      </h1>
+
+      {/* Radio boutons pour sélectionner l'utilisateur */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-gray-700">
+          Sélectionner un utilisateur :
+        </h2>
+        <div className="flex flex-wrap gap-4">
+          {users.map((user) => (
+            <label
+              key={user.name}
+              className="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border-2 transition-all hover:shadow-md"
+              style={{
+                borderColor:
+                  selectedUser?.name === user.name
+                    ? user.color.replace("bg-", "")
+                    : "#e5e7eb",
+                backgroundColor:
+                  selectedUser?.name === user.name
+                    ? `${user.color}20`
+                    : "white",
+              }}
+            >
+              <input
+                type="radio"
+                name="user"
+                value={user.name}
+                checked={selectedUser?.name === user.name}
+                onChange={() => setSelectedUser(user)}
+                className="sr-only"
+              />
+              <div
+                className={`w-4 h-4 rounded-full border-2 ${user.color} ${
+                  selectedUser?.name === user.name
+                    ? "ring-2 ring-offset-2 ring-gray-400"
+                    : ""
+                }`}
+              />
+              <span className="font-medium text-gray-700">{user.name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Calendrier */}
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        {/* En-têtes des jours */}
+        <div className="grid grid-cols-7 bg-gray-50">
+          {dayNames.map((dayName) => (
+            <div
+              key={dayName}
+              className="p-4 text-center font-semibold text-gray-700 border-r border-gray-200 last:border-r-0"
+            >
+              {dayName}
+            </div>
+          ))}
+        </div>
+
+        {/* Grille des jours */}
+        <div className="grid grid-cols-7">
+          {days.map((date, index) => {
+            const dayEvents = getEventsForDate(date);
+            const isCurrentDay = isToday(date);
+            const isCurrentWeek = index < 7;
+            const isNextWeek = index >= 7;
+            const hasUserEvent =
+              selectedUser &&
+              dayEvents.some((event) => event.user.name === selectedUser.name);
+
+            return (
+              <div
+                key={index}
+                onClick={() => handleDayClick(date)}
+                className={`
+                  min-h-[100px] p-3 border-r border-b border-gray-200 cursor-pointer transition-all
+                  hover:bg-gray-50 relative overflow-hidden
+                  ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                  ${!selectedUser ? "cursor-not-allowed opacity-50" : ""}
+                `}
+              >
+                {/* Numéro du jour */}
+                <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
+                  {date.getDate()}
+                </div>
+
+                {/* Événements divisés */}
+                {dayEvents.length > 0 && (
+                  <div className="absolute inset-0 flex">
+                    {dayEvents.map((event, eventIndex) => {
+                      const width = `${100 / dayEvents.length}%`;
+                      return (
+                        <div
+                          key={`${event.date}-${event.user.name}`}
+                          className={`${event.user.color} opacity-50 flex items-center justify-center`}
+                          style={{ width }}
+                        >
+                          <div
+                            className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
+                          >
+                            {event.user.name}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Statut de synchronisation */}
+      <div className="mt-4 text-center text-sm text-gray-500">
+        <p>✅ Données synchronisées avec Neon PostgreSQL</p>
+        {Array.isArray(events) && events.length === 0 && (
+          <p className="mt-2 text-gray-400">
+            Aucun événement enregistré - le calendrier est vide
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }
