@@ -1,12 +1,12 @@
 import { neon } from "@neondatabase/serverless";
 
 // Configuration de la base de données Neon
-if (!process.env.DATABASE_URL) {
+if (!process.env.DATABASE_URL_CUSTOM) {
   throw new Error(
     "DATABASE_URL n'est pas défini dans les variables d'environnement"
   );
 }
-const sql = neon(process.env.DATABASE_URL);
+const sql = neon(process.env.DATABASE_URL_CUSTOM);
 
 // Interface pour les événements en base de données
 export interface DbEvent {
