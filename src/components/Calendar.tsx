@@ -248,7 +248,6 @@ export default function Calendar() {
                   min-h-[100px] p-3 border-r border-b border-gray-200 cursor-pointer transition-all
                   hover:bg-gray-50 relative overflow-hidden
                   ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                  ${!selectedUser ? "cursor-not-allowed opacity-50" : ""}
                 `}
               >
                 {/* Numéro du jour */}
