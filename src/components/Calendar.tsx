@@ -273,7 +273,7 @@ export default function Calendar() {
                             {event.user.name}
                           </div>
                           {event.time && (
-                            <div className="text-white text-xs font-bold mt-1">
+                            <div className="text-white text-xs font-bold mt-1 outline outline-1 outline-black">
                               {event.time}
                             </div>
                           )}
@@ -313,7 +313,7 @@ export default function Calendar() {
               <select
                 value={selectedTime}
                 onChange={(e) => setSelectedTime(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               >
                 {hours.map((hour) => (
                   <option key={hour} value={hour}>
