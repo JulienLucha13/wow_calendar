@@ -230,20 +230,6 @@ export default function Calendar() {
                     })}
                   </div>
                 )}
-
-                {/* Indicateur de sélection */}
-                {selectedUser && !hasUserEvent && (
-                  <div className="text-xs text-gray-400 mt-2 relative z-10">
-                    Cliquez pour ajouter {selectedUser.name}
-                  </div>
-                )}
-
-                {/* Indicateur de suppression */}
-                {selectedUser && hasUserEvent && (
-                  <div className="text-xs text-gray-600 mt-2 relative z-10 font-medium">
-                    Cliquez pour retirer {selectedUser.name}
-                  </div>
-                )}
               </div>
             );
           })}
