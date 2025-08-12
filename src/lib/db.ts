@@ -41,18 +41,32 @@ export async function initDatabase() {
     const sql = getSql();
     console.log("✅ Connexion SQL obtenue");
 
-    // Créer la table events si elle n'existe pas
-    console.log("📝 Création de la table events...");
-    await sql`
-      CREATE TABLE IF NOT EXISTS events (
-        id SERIAL PRIMARY KEY,
-        date VARCHAR(10) NOT NULL,
-        user_name VARCHAR(50) NOT NULL,
-        user_color VARCHAR(20) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(date, user_name)
-      )
+    // Vérifier si la table existe déjà
+    console.log("📝 Vérification de l'existence de la table events...");
+    const tableExists = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'events'
+      );
     `;
+
+    if (tableExists[0]?.exists) {
+      console.log("✅ La table events existe déjà");
+    } else {
+      console.log("📝 Création de la table events...");
+      await sql`
+        CREATE TABLE events (
+          id SERIAL PRIMARY KEY,
+          date VARCHAR(10) NOT NULL,
+          user_name VARCHAR(50) NOT NULL,
+          user_color VARCHAR(20) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(date, user_name)
+        )
+      `;
+      console.log("✅ Table events créée avec succès");
+    }
 
     console.log("✅ Base de données initialisée avec succès");
   } catch (error) {
@@ -170,19 +184,19 @@ export async function saveAllEvents(events: DayEvent[]): Promise<void> {
     await sql`DELETE FROM events`;
     console.log("✅ Tous les événements supprimés");
 
-    // Ajouter tous les nouveaux événements
+    // Ajouter tous les nouveaux événements avec des requêtes préparées
     if (events.length > 0) {
       console.log("📝 Insertion des nouveaux événements...");
-      const values = events
-        .map(
-          (event) => `(${event.date}, ${event.user.name}, ${event.user.color})`
-        )
-        .join(", ");
 
-      console.log("Valeurs à insérer:", values);
-      await sql`INSERT INTO events (date, user_name, user_color) VALUES ${sql.unsafe(
-        values
-      )}`;
+      // Utiliser des requêtes préparées pour chaque événement
+      for (const event of events) {
+        console.log("📝 Insertion de l'événement:", event);
+        await sql`
+          INSERT INTO events (date, user_name, user_color)
+          VALUES (${event.date}, ${event.user.name}, ${event.user.color})
+        `;
+      }
+
       console.log(`✅ ${events.length} événements insérés avec succès`);
     } else {
       console.log("ℹ️ Aucun événement à insérer");
