@@ -8,6 +8,12 @@ interface User {
   color: string;
 }
 
+interface DayEvent {
+  date: string;
+  user: User;
+  time?: string;
+}
+
 const users: User[] = [
   { name: "Flavio", color: "bg-blue-500" },
   { name: "Dagreat", color: "bg-yellow-500" },
@@ -15,9 +21,24 @@ const users: User[] = [
   { name: "Naarz", color: "bg-purple-500" },
 ];
 
+// Générer les heures de 00:00 à 23:00
+const generateHours = () => {
+  const hours = [];
+  for (let i = 0; i < 24; i++) {
+    const hour = i.toString().padStart(2, "0");
+    hours.push(`${hour}:00`);
+  }
+  return hours;
+};
+
 export default function Calendar() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showTimeModal, setShowTimeModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState("12:00");
   const { events, loading, error, addEvent, removeEvent } = useCalendarEvents();
+
+  const hours = generateHours();
 
   // Obtenir la date actuelle
   const today = new Date();
@@ -64,29 +85,55 @@ export default function Calendar() {
   const handleDayClick = async (date: Date) => {
     if (!selectedUser) return;
 
-    try {
-      const dateStr = formatDate(date);
-      const dayEvents = getEventsForDate(date);
-      const existingEvent = dayEvents.find(
-        (event) => event.user.name === selectedUser.name
-      );
+    const dateStr = formatDate(date);
+    const dayEvents = getEventsForDate(date);
+    const existingEvent = dayEvents.find(
+      (event) => event.user.name === selectedUser.name
+    );
 
-      if (existingEvent) {
-        // Supprimer l'événement de cet utilisateur spécifique
-        console.log("🗑️ Suppression de l'événement existant");
+    if (existingEvent) {
+      // Supprimer l'événement de cet utilisateur spécifique
+      console.log("🗑️ Suppression de l'événement existant");
+      try {
         await removeEvent(dateStr, selectedUser.name);
-      } else {
-        // Ajouter un nouvel événement pour cet utilisateur
-        console.log("➕ Ajout d'un nouvel événement");
-        await addEvent({ date: dateStr, user: selectedUser });
+      } catch (err) {
+        console.error("❌ Erreur lors de la suppression de l'événement:", err);
+        alert(
+          `Erreur: ${err instanceof Error ? err.message : "Erreur inconnue"}`
+        );
       }
+    } else {
+      // Ouvrir le modal pour sélectionner l'heure
+      setSelectedDate(date);
+      setSelectedTime("12:00");
+      setShowTimeModal(true);
+    }
+  };
+
+  const handleTimeConfirm = async () => {
+    if (!selectedUser || !selectedDate) return;
+
+    try {
+      console.log("➕ Ajout d'un nouvel événement avec heure:", selectedTime);
+      const dateStr = formatDate(selectedDate);
+      await addEvent({
+        date: dateStr,
+        user: selectedUser,
+        time: selectedTime,
+      });
+      setShowTimeModal(false);
+      setSelectedDate(null);
     } catch (err) {
-      console.error("❌ Erreur lors de la manipulation de l'événement:", err);
-      // Afficher une notification d'erreur à l'utilisateur
+      console.error("❌ Erreur lors de l'ajout de l'événement:", err);
       alert(
         `Erreur: ${err instanceof Error ? err.message : "Erreur inconnue"}`
       );
     }
+  };
+
+  const handleTimeCancel = () => {
+    setShowTimeModal(false);
+    setSelectedDate(null);
   };
 
   const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
@@ -192,11 +239,6 @@ export default function Calendar() {
           {days.map((date, index) => {
             const dayEvents = getEventsForDate(date);
             const isCurrentDay = isToday(date);
-            const isCurrentWeek = index < 7;
-            const isNextWeek = index >= 7;
-            const hasUserEvent =
-              selectedUser &&
-              dayEvents.some((event) => event.user.name === selectedUser.name);
 
             return (
               <div
@@ -222,7 +264,7 @@ export default function Calendar() {
                       return (
                         <div
                           key={`${event.date}-${event.user.name}`}
-                          className={`${event.user.color} opacity-50 flex items-center justify-center`}
+                          className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
                           style={{ width }}
                         >
                           <div
@@ -230,6 +272,11 @@ export default function Calendar() {
                           >
                             {event.user.name}
                           </div>
+                          {event.time && (
+                            <div className="text-white text-xs font-bold mt-1">
+                              {event.time}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -250,6 +297,49 @@ export default function Calendar() {
           </p>
         )}
       </div>
+
+      {/* Modal de sélection d'heure */}
+      {showTimeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+              Sélectionner une heure pour {selectedUser?.name}
+            </h3>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Heure :
+              </label>
+              <select
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                {hours.map((hour) => (
+                  <option key={hour} value={hour}>
+                    {hour}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleTimeCancel}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleTimeConfirm}
+                className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

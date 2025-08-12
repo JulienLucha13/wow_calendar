@@ -6,6 +6,7 @@ export interface DbEvent {
   date: string;
   user_name: string;
   user_color: string;
+  time?: string; // Nouveau champ pour l'heure
   created_at?: Date;
 }
 
@@ -16,6 +17,7 @@ export interface DayEvent {
     name: string;
     color: string;
   };
+  time?: string; // Nouveau champ pour l'heure
 }
 
 // Fonction pour obtenir la connexion SQL
@@ -61,6 +63,7 @@ export async function initDatabase() {
           date VARCHAR(10) NOT NULL,
           user_name VARCHAR(50) NOT NULL,
           user_color VARCHAR(20) NOT NULL,
+          time VARCHAR(5) DEFAULT '12:00',
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(date, user_name)
         )
@@ -91,7 +94,7 @@ export async function getAllEvents(): Promise<DayEvent[]> {
 
     console.log("📝 Exécution de la requête SELECT...");
     const events = (await sql`
-      SELECT id, date, user_name, user_color, created_at
+      SELECT id, date, user_name, user_color, time, created_at
       FROM events
       ORDER BY date ASC, created_at ASC
     `) as DbEvent[];
@@ -107,6 +110,7 @@ export async function getAllEvents(): Promise<DayEvent[]> {
         name: event.user_name,
         color: event.user_color,
       },
+      time: event.time || "12:00",
     }));
 
     console.log("✅ Événements mappés:", mappedEvents);
@@ -124,18 +128,26 @@ export async function getAllEvents(): Promise<DayEvent[]> {
 export async function addEvent(
   date: string,
   userName: string,
-  userColor: string
+  userColor: string,
+  time: string = "12:00"
 ): Promise<void> {
-  console.log("🔧 addEvent() appelé avec:", { date, userName, userColor });
+  console.log("🔧 addEvent() appelé avec:", {
+    date,
+    userName,
+    userColor,
+    time,
+  });
   try {
     const sql = getSql();
     console.log("✅ Connexion SQL obtenue");
 
     console.log("📝 Exécution de la requête INSERT...");
     await sql`
-      INSERT INTO events (date, user_name, user_color)
-      VALUES (${date}, ${userName}, ${userColor})
-      ON CONFLICT (date, user_name) DO NOTHING
+      INSERT INTO events (date, user_name, user_color, time)
+      VALUES (${date}, ${userName}, ${userColor}, ${time})
+      ON CONFLICT (date, user_name) DO UPDATE SET
+        user_color = EXCLUDED.user_color,
+        time = EXCLUDED.time
     `;
     console.log("✅ Événement ajouté avec succès");
   } catch (error) {
@@ -192,8 +204,10 @@ export async function saveAllEvents(events: DayEvent[]): Promise<void> {
       for (const event of events) {
         console.log("📝 Insertion de l'événement:", event);
         await sql`
-          INSERT INTO events (date, user_name, user_color)
-          VALUES (${event.date}, ${event.user.name}, ${event.user.color})
+          INSERT INTO events (date, user_name, user_color, time)
+          VALUES (${event.date}, ${event.user.name}, ${event.user.color}, ${
+          event.time || "12:00"
+        })
         `;
       }
 

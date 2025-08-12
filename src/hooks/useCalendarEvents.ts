@@ -8,6 +8,7 @@ interface User {
 interface DayEvent {
   date: string;
   user: User;
+  time?: string;
 }
 
 export function useCalendarEvents() {
