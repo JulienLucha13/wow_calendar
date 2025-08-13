@@ -191,6 +191,9 @@ export async function saveAllEvents(events: DayEvent[]): Promise<void> {
     const sql = getSql();
     console.log("✅ Connexion SQL obtenue");
 
+    // D'abord nettoyer les anciens événements
+    await cleanupOldEvents();
+
     // Supprimer tous les événements existants
     console.log("📝 Suppression de tous les événements existants...");
     await sql`DELETE FROM events`;
@@ -217,6 +220,36 @@ export async function saveAllEvents(events: DayEvent[]): Promise<void> {
     }
   } catch (error) {
     console.error("❌ Erreur lors de la sauvegarde des événements:", error);
+    console.error(
+      "Stack trace:",
+      error instanceof Error ? error.stack : "Pas de stack trace"
+    );
+    throw error;
+  }
+}
+
+// Fonction pour supprimer les événements de plus de 2 semaines
+export async function cleanupOldEvents(): Promise<void> {
+  console.log("🔧 cleanupOldEvents() appelé");
+  try {
+    const sql = getSql();
+    console.log("✅ Connexion SQL obtenue");
+
+    // Calculer la date limite (2 semaines en arrière)
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    const limitDate = twoWeeksAgo.toISOString().split("T")[0];
+
+    console.log(`📝 Suppression des événements antérieurs au ${limitDate}...`);
+
+    const result = await sql`
+      DELETE FROM events
+      WHERE date < ${limitDate}
+    `;
+
+    console.log("✅ Nettoyage des anciens événements terminé");
+  } catch (error) {
+    console.error("❌ Erreur lors du nettoyage des anciens événements:", error);
     console.error(
       "Stack trace:",
       error instanceof Error ? error.stack : "Pas de stack trace"

@@ -16,9 +16,12 @@ export async function GET() {
     await initDatabase();
     console.log("✅ Base de données initialisée");
 
-    console.log("2. Récupération des événements...");
+    console.log("2. Récupération des événements avec nettoyage automatique...");
     const events = await getAllEvents();
-    console.log(`✅ ${events.length} événements récupérés:`, events);
+    console.log(
+      `✅ ${events.length} événements récupérés après nettoyage:`,
+      events
+    );
 
     return NextResponse.json({ events });
   } catch (error) {
