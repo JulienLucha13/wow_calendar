@@ -232,69 +232,197 @@ export default function Calendar() {
 
       {/* Calendrier */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* En-têtes des jours */}
-        <div className="grid grid-cols-7 bg-gray-50">
-          {dayNames.map((dayName) => (
-            <div
-              key={dayName}
-              className="p-4 text-center font-semibold text-gray-700 border-r border-gray-200 last:border-r-0"
-            >
-              {dayName}
-            </div>
-          ))}
-        </div>
-
-        {/* Grille des jours */}
-        <div className="grid grid-cols-7">
-          {days.map((date, index) => {
-            const dayEvents = getEventsForDate(date);
-            const isCurrentDay = isToday(date);
-
-            return (
-              <div
-                key={index}
-                onClick={() => handleDayClick(date)}
-                className={`
-                  min-h-[100px] p-3 border-r border-b border-gray-200 cursor-pointer transition-all
-                  hover:bg-gray-50 relative overflow-hidden
-                  ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                `}
-              >
-                {/* Numéro du jour */}
-                <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
-                  {date.getDate()}
+        {isMobile ? (
+          // Affichage mobile : 3 colonnes (jours, semaine actuelle, semaine suivante)
+          <div className="grid grid-cols-[30px_1fr_1fr]">
+            {/* Colonne 1 : Jours de la semaine */}
+            <div className="bg-gray-50">
+              {dayNames.map((dayName, index) => (
+                <div
+                  key={dayName}
+                  className="p-2 text-center font-medium text-gray-700 border-b border-gray-200 min-h-[100px] flex items-center justify-center text-sm"
+                >
+                  {dayName}
                 </div>
+              ))}
+            </div>
 
-                {/* Événements divisés */}
-                {dayEvents.length > 0 && (
-                  <div className="absolute inset-0 flex">
-                    {dayEvents.map((event, eventIndex) => {
-                      const width = `${100 / dayEvents.length}%`;
-                      return (
-                        <div
-                          key={`${event.date}-${event.user.name}`}
-                          className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
-                          style={{ width }}
-                        >
-                          <div
-                            className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
-                          >
-                            {event.user.name}
-                          </div>
-                          {event.time && (
-                            <div className="text-white text-xs font-bold mt-1">
-                              {event.time}
+            {/* Colonne 2 : Semaine actuelle */}
+            <div>
+              {days.slice(0, 7).map((date, index) => {
+                const dayEvents = getEventsForDate(date);
+                const isCurrentDay = isToday(date);
+
+                return (
+                  <div
+                    key={index}
+                    onClick={() => handleDayClick(date)}
+                    className={`
+                       min-h-[100px] p-3 border-b border-gray-200 cursor-pointer transition-all
+                       hover:bg-gray-50 relative overflow-hidden
+                       ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                     `}
+                  >
+                    {/* Numéro du jour */}
+                    <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
+                      {date.getDate()}
+                    </div>
+
+                    {/* Événements divisés */}
+                    {dayEvents.length > 0 && (
+                      <div className="absolute inset-0 flex flex-row">
+                        {dayEvents.map((event, eventIndex) => {
+                          const width = `${100 / dayEvents.length}%`;
+                          return (
+                            <div
+                              key={`${event.date}-${event.user.name}`}
+                              className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
+                              style={{ width }}
+                            >
+                              {!isMobile && (
+                                <div
+                                  className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
+                                >
+                                  {event.user.name}
+                                </div>
+                              )}
+                              {event.time && (
+                                <div className="text-white text-xs font-bold mt-1">
+                                  {event.time.substring(0, 2)}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+
+            {/* Colonne 3 : Semaine suivante */}
+            <div>
+              {days.slice(7, 14).map((date, index) => {
+                const dayEvents = getEventsForDate(date);
+                const isCurrentDay = isToday(date);
+
+                return (
+                  <div
+                    key={index + 7}
+                    onClick={() => handleDayClick(date)}
+                    className={`
+                       min-h-[100px] p-3 border-b border-gray-200 cursor-pointer transition-all
+                       hover:bg-gray-50 relative overflow-hidden
+                       ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                     `}
+                  >
+                    {/* Numéro du jour */}
+                    <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
+                      {date.getDate()}
+                    </div>
+
+                    {/* Événements divisés */}
+                    {dayEvents.length > 0 && (
+                      <div className="absolute inset-0 flex flex-row">
+                        {dayEvents.map((event, eventIndex) => {
+                          const width = `${100 / dayEvents.length}%`;
+                          return (
+                            <div
+                              key={`${event.date}-${event.user.name}`}
+                              className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
+                              style={{ width }}
+                            >
+                              {!isMobile && (
+                                <div
+                                  className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
+                                >
+                                  {event.user.name}
+                                </div>
+                              )}
+                              {event.time && (
+                                <div className="text-white text-xs font-bold mt-1">
+                                  {event.time.substring(0, 2)}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          // Affichage desktop : grille classique 7 colonnes
+          <>
+            {/* En-têtes des jours */}
+            <div className="grid grid-cols-7 bg-gray-50">
+              {dayNames.map((dayName) => (
+                <div
+                  key={dayName}
+                  className="p-4 text-center font-semibold text-gray-700 border-r border-gray-200 last:border-r-0"
+                >
+                  {dayName}
+                </div>
+              ))}
+            </div>
+
+            {/* Grille des jours */}
+            <div className="grid grid-cols-7">
+              {days.map((date, index) => {
+                const dayEvents = getEventsForDate(date);
+                const isCurrentDay = isToday(date);
+
+                return (
+                  <div
+                    key={index}
+                    onClick={() => handleDayClick(date)}
+                    className={`
+                       min-h-[100px] p-3 border-r border-b border-gray-200 cursor-pointer transition-all
+                       hover:bg-gray-50 relative overflow-hidden
+                       ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                     `}
+                  >
+                    {/* Numéro du jour */}
+                    <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
+                      {date.getDate()}
+                    </div>
+
+                    {/* Événements divisés */}
+                    {dayEvents.length > 0 && (
+                      <div className="absolute inset-0 flex flex-col">
+                        {dayEvents.map((event, eventIndex) => {
+                          const height = `${100 / dayEvents.length}%`;
+                          return (
+                            <div
+                              key={`${event.date}-${event.user.name}`}
+                              className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
+                              style={{ height }}
+                            >
+                              <div
+                                className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
+                              >
+                                {event.user.name}
+                              </div>
+                              {event.time && (
+                                <div className="text-white text-xs font-bold mt-1">
+                                  {event.time}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Statut de synchronisation */}
