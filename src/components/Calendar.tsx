@@ -2,6 +2,7 @@
 
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useEffect, useState } from "react";
+import EventDivider from "./EventDivider";
 
 interface User {
   name: string;
@@ -269,33 +270,7 @@ export default function Calendar() {
                     </div>
 
                     {/* Événements divisés */}
-                    {dayEvents.length > 0 && (
-                      <div className="absolute inset-0 flex flex-row">
-                        {dayEvents.map((event, eventIndex) => {
-                          const width = `${100 / dayEvents.length}%`;
-                          return (
-                            <div
-                              key={`${event.date}-${event.user.name}`}
-                              className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
-                              style={{ width }}
-                            >
-                              {!isMobile && (
-                                <div
-                                  className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
-                                >
-                                  {event.user.name}
-                                </div>
-                              )}
-                              {event.time && (
-                                <div className="text-white text-xs font-bold mt-1">
-                                  {event.time.substring(0, 2)}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                    <EventDivider events={dayEvents} isMobile={isMobile} />
                   </div>
                 );
               })}
@@ -323,33 +298,7 @@ export default function Calendar() {
                     </div>
 
                     {/* Événements divisés */}
-                    {dayEvents.length > 0 && (
-                      <div className="absolute inset-0 flex flex-row">
-                        {dayEvents.map((event, eventIndex) => {
-                          const width = `${100 / dayEvents.length}%`;
-                          return (
-                            <div
-                              key={`${event.date}-${event.user.name}`}
-                              className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
-                              style={{ width }}
-                            >
-                              {!isMobile && (
-                                <div
-                                  className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
-                                >
-                                  {event.user.name}
-                                </div>
-                              )}
-                              {event.time && (
-                                <div className="text-white text-xs font-bold mt-1">
-                                  {event.time.substring(0, 2)}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                    <EventDivider events={dayEvents} isMobile={isMobile} />
                   </div>
                 );
               })}
@@ -392,31 +341,7 @@ export default function Calendar() {
                     </div>
 
                     {/* Événements divisés */}
-                    {dayEvents.length > 0 && (
-                      <div className="absolute inset-0 flex flex-col">
-                        {dayEvents.map((event, eventIndex) => {
-                          const height = `${100 / dayEvents.length}%`;
-                          return (
-                            <div
-                              key={`${event.date}-${event.user.name}`}
-                              className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
-                              style={{ height }}
-                            >
-                              <div
-                                className={`${event.user.color} text-white px-1 py-0.5 rounded text-xs font-medium`}
-                              >
-                                {event.user.name}
-                              </div>
-                              {event.time && (
-                                <div className="text-white text-xs font-bold mt-1">
-                                  {event.time}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                    <EventDivider events={dayEvents} isMobile={isMobile} />
                   </div>
                 );
               })}
