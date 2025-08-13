@@ -1,7 +1,7 @@
 "use client";
 
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface User {
   name: string;
@@ -36,9 +36,14 @@ export default function Calendar() {
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState("12:00");
+  const [isMobile, setIsMobile] = useState(false);
   const { events, loading, error, addEvent, removeEvent } = useCalendarEvents();
 
   const hours = generateHours();
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 640);
+  }, []);
 
   // Obtenir la date actuelle
   const today = new Date();
@@ -173,7 +178,12 @@ export default function Calendar() {
   }
 
   return (
-    <div className="max-w-9xl mx-auto p-6" style={{ width: "80%" }}>
+    <div
+      className="max-w-9xl mx-auto p-6"
+      style={{
+        width: isMobile ? "100%" : "80%",
+      }}
+    >
       <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
         Calendrier WoW
       </h1>
