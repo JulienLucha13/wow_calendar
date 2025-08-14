@@ -19,7 +19,7 @@ export default function EventDivider({ events, isMobile }: EventDividerProps) {
         return (
           <div
             key={`${event.date}-${event.user.name}`}
-            className={`${event.user.color} opacity-50 flex flex-col items-center justify-center`}
+            className={`${event.user.color}  flex flex-col items-center justify-center`}
             style={{ [dimension]: size }}
           >
             {!isMobile && (

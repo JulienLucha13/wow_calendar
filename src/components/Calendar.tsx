@@ -15,11 +15,15 @@ interface DayEvent {
   time?: string;
 }
 
+// UPDATE events
+// SET user_color = 'naarzColor'
+// WHERE user_name = 'Naarz';
+
 const users: User[] = [
-  { name: "Flavio", color: "bg-blue-500" },
-  { name: "Dagreat", color: "bg-yellow-500" },
-  { name: "Aisen", color: "bg-pink-500" },
-  { name: "Naarz", color: "bg-purple-500" },
+  { name: "Flavio", color: "flavioColor" },
+  { name: "Dagreat", color: "dagreatColor" },
+  { name: "Aisen", color: "aisenColor" },
+  { name: "Naarz", color: "naarzColor" },
 ];
 
 // Générer les heures de 00:00 à 23:00
