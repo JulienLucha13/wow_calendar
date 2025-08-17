@@ -2,7 +2,10 @@
 
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useEffect, useState } from "react";
-import EventDivider from "./EventDivider";
+import Erreur from "./Erreur";
+import ModalSelection from "./ModalSelection";
+import SelectionUtilisateur from "./SelectionUtilisateur";
+import Semaine from "./semaine/Semaine";
 
 interface User {
   name: string;
@@ -14,10 +17,6 @@ interface DayEvent {
   user: User;
   time?: string;
 }
-
-// UPDATE events
-// SET user_color = 'naarzColor'
-// WHERE user_name = 'Naarz';
 
 const users: User[] = [
   { name: "Flavio", color: "flavioColor" },
@@ -164,22 +163,7 @@ export default function Calendar() {
 
   // Affichage d'erreur
   if (error) {
-    return (
-      <div className="max-w-9xl mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h2 className="text-red-800 font-semibold mb-2">
-            Erreur de chargement
-          </h2>
-          <p className="text-red-600">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Réessayer
-          </button>
-        </div>
-      </div>
-    );
+    return <Erreur error={error} />;
   }
 
   return (
@@ -193,197 +177,24 @@ export default function Calendar() {
         Calendrier WoW
       </h1>
 
-      {/* Radio boutons pour sélectionner l'utilisateur */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Sélectionner un utilisateur :
-        </h2>
-        <div className="flex flex-wrap gap-4">
-          {users.map((user) => (
-            <label
-              key={user.name}
-              className="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border-2 transition-all hover:shadow-md"
-              style={{
-                borderColor:
-                  selectedUser?.name === user.name
-                    ? user.color.replace("bg-", "")
-                    : "#e5e7eb",
-                backgroundColor:
-                  selectedUser?.name === user.name
-                    ? `${user.color}20`
-                    : "white",
-              }}
-            >
-              <input
-                type="radio"
-                name="user"
-                value={user.name}
-                checked={selectedUser?.name === user.name}
-                onChange={() => setSelectedUser(user)}
-                className="sr-only"
-              />
-              <div
-                className={`w-4 h-4 rounded-full border-2 ${user.color} ${
-                  selectedUser?.name === user.name
-                    ? "ring-2 ring-offset-2 ring-gray-400"
-                    : ""
-                }`}
-              />
-              <span className="font-medium text-gray-700">{user.name}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+      <SelectionUtilisateur
+        users={users}
+        selectedUser={selectedUser}
+        onUserSelect={setSelectedUser}
+      />
 
       {/* Calendrier */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {isMobile ? (
-          // Affichage mobile : 3 colonnes (jours, semaine actuelle, semaine suivante)
-          <div className="grid grid-cols-[30px_1fr_1fr]">
-            {/* Colonne 1 : Jours de la semaine */}
-            <div className="bg-gray-50">
-              {dayNames.map((dayName, index) => {
-                // Vérifier si ce jour correspond au jour actuel
-                const currentDayIndex = today.getDay();
-                const adjustedDayIndex =
-                  currentDayIndex === 0 ? 6 : currentDayIndex - 1; // Lundi = 0, Dimanche = 6
-                const isCurrentDayOfWeek = index === adjustedDayIndex;
-
-                return (
-                  <div
-                    key={dayName}
-                    className={`p-2 text-center font-medium text-gray-700 border-b-2 border-gray-200 min-h-[100px] flex items-center justify-center text-sm  ${
-                      isCurrentDayOfWeek ? "bg-blue-200" : ""
-                    }`}
-                  >
-                    {dayName}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Colonne 2 : Semaine actuelle */}
-            <div>
-              {days.slice(0, 7).map((date, index) => {
-                const dayEvents = getEventsForDate(date);
-                const isCurrentDay = isToday(date);
-
-                return (
-                  <div
-                    key={index}
-                    onClick={() => handleDayClick(date)}
-                    className={`
-                        min-h-[100px] p-3 border-b-2 border-gray-200 cursor-pointer transition-all
-                        hover:bg-gray-50 relative overflow-hidden
-                        ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                      `}
-                  >
-                    {/* Numéro du jour */}
-                    <div
-                      className={`text-sm text-gray-900 mb-2 relative z-10 ${
-                        isCurrentDay ? "font-bold underline" : "font-medium"
-                      }`}
-                    >
-                      {date.getDate()}
-                    </div>
-
-                    {/* Événements divisés */}
-                    <EventDivider events={dayEvents} isMobile={isMobile} />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Colonne 3 : Semaine suivante */}
-            <div>
-              {days.slice(7, 14).map((date, index) => {
-                const dayEvents = getEventsForDate(date);
-                const isCurrentDay = isToday(date);
-
-                return (
-                  <div
-                    key={index + 7}
-                    onClick={() => handleDayClick(date)}
-                    className={`
-                        min-h-[100px] p-3 border-b-2 border-gray-200 cursor-pointer transition-all
-                        hover:bg-gray-50 relative overflow-hidden
-                        ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                      `}
-                  >
-                    {/* Numéro du jour */}
-                    <div
-                      className={`text-sm text-gray-900 mb-2 relative z-10 ${
-                        isCurrentDay ? "font-bold underline" : "font-medium"
-                      }`}
-                    >
-                      {date.getDate()}
-                    </div>
-
-                    {/* Événements divisés */}
-                    <EventDivider events={dayEvents} isMobile={isMobile} />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          // Affichage desktop : grille classique 7 colonnes
-          <>
-            {/* En-têtes des jours */}
-            <div className="grid grid-cols-7 bg-gray-50">
-              {dayNames.map((dayName, index) => {
-                // Vérifier si ce jour correspond au jour actuel
-                const currentDayIndex = today.getDay();
-                const adjustedDayIndex =
-                  currentDayIndex === 0 ? 6 : currentDayIndex - 1; // Lundi = 0, Dimanche = 6
-                const isCurrentDayOfWeek = index === adjustedDayIndex;
-
-                return (
-                  <div
-                    key={dayName}
-                    className={`p-4 text-center font-semibold text-gray-700 border-r-2 border-gray-200 last:border-r-0 ${
-                      isCurrentDayOfWeek ? "bg-blue-200" : ""
-                    }`}
-                  >
-                    {dayName}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Grille des jours */}
-            <div className="grid grid-cols-7">
-              {days.map((date, index) => {
-                const dayEvents = getEventsForDate(date);
-                const isCurrentDay = isToday(date);
-
-                return (
-                  <div
-                    key={index}
-                    onClick={() => handleDayClick(date)}
-                    className={`
-                        min-h-[100px] p-3 border-r-2 border-b-2 border-gray-200 cursor-pointer transition-all
-                        hover:bg-gray-50 relative overflow-hidden
-                        ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                      `}
-                  >
-                    {/* Numéro du jour */}
-                    <div
-                      className={`text-sm text-gray-900 mb-2 relative z-10 ${
-                        isCurrentDay ? "font-bold underline" : "font-medium"
-                      }`}
-                    >
-                      {date.getDate()}
-                    </div>
-
-                    {/* Événements divisés */}
-                    <EventDivider events={dayEvents} isMobile={isMobile} />
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
+        <Semaine
+          days={days}
+          dayNames={dayNames}
+          isMobile={isMobile}
+          today={today}
+          events={events}
+          onDayClick={handleDayClick}
+          getEventsForDate={getEventsForDate}
+          isToday={isToday}
+        />
       </div>
 
       {/* Statut de synchronisation */}
@@ -396,48 +207,15 @@ export default function Calendar() {
         )}
       </div>
 
-      {/* Modal de sélection d'heure */}
-      {showTimeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Sélectionner une heure pour {selectedUser?.name}
-            </h3>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Heure :
-              </label>
-              <select
-                value={selectedTime}
-                onChange={(e) => setSelectedTime(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              >
-                {hours.map((hour) => (
-                  <option key={hour} value={hour}>
-                    {hour}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleTimeCancel}
-                className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleTimeConfirm}
-                className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Confirmer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ModalSelection
+        showTimeModal={showTimeModal}
+        selectedUser={selectedUser}
+        selectedTime={selectedTime}
+        hours={hours}
+        onTimeChange={setSelectedTime}
+        onConfirm={handleTimeConfirm}
+        onCancel={handleTimeCancel}
+      />
     </div>
   );
 }
