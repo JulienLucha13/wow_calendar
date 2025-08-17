@@ -242,14 +242,24 @@ export default function Calendar() {
           <div className="grid grid-cols-[30px_1fr_1fr]">
             {/* Colonne 1 : Jours de la semaine */}
             <div className="bg-gray-50">
-              {dayNames.map((dayName, index) => (
-                <div
-                  key={dayName}
-                  className="p-2 text-center font-medium text-gray-700 border-b border-gray-200 min-h-[100px] flex items-center justify-center text-sm"
-                >
-                  {dayName}
-                </div>
-              ))}
+              {dayNames.map((dayName, index) => {
+                // Vérifier si ce jour correspond au jour actuel
+                const currentDayIndex = today.getDay();
+                const adjustedDayIndex =
+                  currentDayIndex === 0 ? 6 : currentDayIndex - 1; // Lundi = 0, Dimanche = 6
+                const isCurrentDayOfWeek = index === adjustedDayIndex;
+
+                return (
+                  <div
+                    key={dayName}
+                    className={`p-2 text-center font-medium text-gray-700 border-b border-gray-200 min-h-[100px] flex items-center justify-center text-sm  ${
+                      isCurrentDayOfWeek ? "bg-blue-200" : ""
+                    }`}
+                  >
+                    {dayName}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Colonne 2 : Semaine actuelle */}
@@ -269,7 +279,11 @@ export default function Calendar() {
                      `}
                   >
                     {/* Numéro du jour */}
-                    <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
+                    <div
+                      className={`text-sm text-gray-900 mb-2 relative z-10 ${
+                        isCurrentDay ? "font-bold underline" : "font-medium"
+                      }`}
+                    >
                       {date.getDate()}
                     </div>
 
@@ -297,7 +311,11 @@ export default function Calendar() {
                      `}
                   >
                     {/* Numéro du jour */}
-                    <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
+                    <div
+                      className={`text-sm text-gray-900 mb-2 relative z-10 ${
+                        isCurrentDay ? "font-bold underline" : "font-medium"
+                      }`}
+                    >
                       {date.getDate()}
                     </div>
 
@@ -313,14 +331,24 @@ export default function Calendar() {
           <>
             {/* En-têtes des jours */}
             <div className="grid grid-cols-7 bg-gray-50">
-              {dayNames.map((dayName) => (
-                <div
-                  key={dayName}
-                  className="p-4 text-center font-semibold text-gray-700 border-r border-gray-200 last:border-r-0"
-                >
-                  {dayName}
-                </div>
-              ))}
+              {dayNames.map((dayName, index) => {
+                // Vérifier si ce jour correspond au jour actuel
+                const currentDayIndex = today.getDay();
+                const adjustedDayIndex =
+                  currentDayIndex === 0 ? 6 : currentDayIndex - 1; // Lundi = 0, Dimanche = 6
+                const isCurrentDayOfWeek = index === adjustedDayIndex;
+
+                return (
+                  <div
+                    key={dayName}
+                    className={`p-4 text-center font-semibold text-gray-700 border-r border-gray-200 last:border-r-0 ${
+                      isCurrentDayOfWeek ? "bg-blue-200" : ""
+                    }`}
+                  >
+                    {dayName}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Grille des jours */}
@@ -340,7 +368,11 @@ export default function Calendar() {
                      `}
                   >
                     {/* Numéro du jour */}
-                    <div className="text-sm font-medium text-gray-900 mb-2 relative z-10">
+                    <div
+                      className={`text-sm text-gray-900 mb-2 relative z-10 ${
+                        isCurrentDay ? "font-bold underline" : "font-medium"
+                      }`}
+                    >
                       {date.getDate()}
                     </div>
 
