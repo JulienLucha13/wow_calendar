@@ -252,7 +252,7 @@ export default function Calendar() {
                 return (
                   <div
                     key={dayName}
-                    className={`p-2 text-center font-medium text-gray-700 border-b border-gray-200 min-h-[100px] flex items-center justify-center text-sm  ${
+                    className={`p-2 text-center font-medium text-gray-700 border-b-2 border-gray-200 min-h-[100px] flex items-center justify-center text-sm  ${
                       isCurrentDayOfWeek ? "bg-blue-200" : ""
                     }`}
                   >
@@ -273,10 +273,10 @@ export default function Calendar() {
                     key={index}
                     onClick={() => handleDayClick(date)}
                     className={`
-                       min-h-[100px] p-3 border-b border-gray-200 cursor-pointer transition-all
-                       hover:bg-gray-50 relative overflow-hidden
-                       ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                     `}
+                        min-h-[100px] p-3 border-b-2 border-gray-200 cursor-pointer transition-all
+                        hover:bg-gray-50 relative overflow-hidden
+                        ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                      `}
                   >
                     {/* Numéro du jour */}
                     <div
@@ -305,10 +305,10 @@ export default function Calendar() {
                     key={index + 7}
                     onClick={() => handleDayClick(date)}
                     className={`
-                       min-h-[100px] p-3 border-b border-gray-200 cursor-pointer transition-all
-                       hover:bg-gray-50 relative overflow-hidden
-                       ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                     `}
+                        min-h-[100px] p-3 border-b-2 border-gray-200 cursor-pointer transition-all
+                        hover:bg-gray-50 relative overflow-hidden
+                        ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                      `}
                   >
                     {/* Numéro du jour */}
                     <div
@@ -341,7 +341,7 @@ export default function Calendar() {
                 return (
                   <div
                     key={dayName}
-                    className={`p-4 text-center font-semibold text-gray-700 border-r border-gray-200 last:border-r-0 ${
+                    className={`p-4 text-center font-semibold text-gray-700 border-r-2 border-gray-200 last:border-r-0 ${
                       isCurrentDayOfWeek ? "bg-blue-200" : ""
                     }`}
                   >
@@ -362,10 +362,10 @@ export default function Calendar() {
                     key={index}
                     onClick={() => handleDayClick(date)}
                     className={`
-                       min-h-[100px] p-3 border-r border-b border-gray-200 cursor-pointer transition-all
-                       hover:bg-gray-50 relative overflow-hidden
-                       ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
-                     `}
+                        min-h-[100px] p-3 border-r-2 border-b-2 border-gray-200 cursor-pointer transition-all
+                        hover:bg-gray-50 relative overflow-hidden
+                        ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                      `}
                   >
                     {/* Numéro du jour */}
                     <div
