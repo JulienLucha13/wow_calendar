@@ -197,15 +197,11 @@ export default function Calendar() {
         />
       </div>
 
-      {/* Statut de synchronisation */}
-      <div className="mt-4 text-center text-sm text-gray-500">
-        <p>✅ Données synchronisées avec Neon PostgreSQL</p>
-        {Array.isArray(events) && events.length === 0 && (
-          <p className="mt-2 text-gray-400">
-            Aucun événement enregistré - le calendrier est vide
-          </p>
-        )}
-      </div>
+      {!isMobile && (
+        <div className="flex justify-center items-center my-8">
+          <img src="/images/map.png" alt="Map" className="w-2/3 h-2/3" />
+        </div>
+      )}
 
       <ModalSelection
         showTimeModal={showTimeModal}
