@@ -154,7 +154,7 @@ export default function Calendar() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement du calendrier...</p>
+            <p className="text-gray-300">Chargement du calendrier...</p>
           </div>
         </div>
       </div>
@@ -173,7 +173,7 @@ export default function Calendar() {
         width: isMobile ? "100%" : "80%",
       }}
     >
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+      <h1 className="text-3xl font-bold text-center mb-8 text-gray-200">
         Calendrier WoW
       </h1>
 
@@ -184,7 +184,7 @@ export default function Calendar() {
       />
 
       {/* Calendrier */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <Semaine
           days={days}
           dayNames={dayNames}

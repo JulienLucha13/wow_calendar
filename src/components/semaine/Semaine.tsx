@@ -38,7 +38,7 @@ export default function Semaine({
     return (
       <div className="grid grid-cols-[30px_1fr_1fr]">
         {/* Colonne 1 : Jours de la semaine */}
-        <div className="bg-gray-50">
+        <div className="bg-gray-700">
           {dayNames.map((dayName, index) => {
             // Vérifier si ce jour correspond au jour actuel
             const currentDayIndex = today.getDay();
@@ -49,8 +49,8 @@ export default function Semaine({
             return (
               <div
                 key={dayName}
-                className={`p-2 text-center font-medium text-gray-700 border-b-2 border-gray-200 min-h-[100px] flex items-center justify-center text-sm  ${
-                  isCurrentDayOfWeek ? "bg-blue-200" : ""
+                className={`p-2 text-center font-medium text-gray-300 border-b-2 border-gray-600 min-h-[100px] flex items-center justify-center text-sm  ${
+                  isCurrentDayOfWeek ? "bg-blue-800" : ""
                 }`}
               >
                 {dayName}
@@ -88,7 +88,7 @@ export default function Semaine({
   return (
     <>
       {/* En-têtes des jours */}
-      <div className="grid grid-cols-7 bg-gray-50">
+      <div className="grid grid-cols-7 bg-gray-700">
         {dayNames.map((dayName, index) => {
           // Vérifier si ce jour correspond au jour actuel
           const currentDayIndex = today.getDay();
@@ -99,8 +99,8 @@ export default function Semaine({
           return (
             <div
               key={dayName}
-              className={`p-4 text-center font-semibold text-gray-700 border-r-2 border-gray-200 last:border-r-0 ${
-                isCurrentDayOfWeek ? "bg-blue-200" : ""
+              className={`p-4 text-center font-semibold text-gray-300 border-r-2 border-gray-600 last:border-r-0 ${
+                isCurrentDayOfWeek ? "bg-blue-800" : ""
               }`}
             >
               {dayName}
@@ -120,14 +120,14 @@ export default function Semaine({
               key={index}
               onClick={() => onDayClick(date)}
               className={`
-                 min-h-[100px] p-3 border-r-2 border-b-2 border-gray-200 cursor-pointer transition-all
-                 hover:bg-gray-50 relative overflow-hidden
-                 ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+                 min-h-[100px] p-3 border-r-2 border-b-2 border-gray-600 cursor-pointer transition-all
+                 hover:bg-gray-700 relative overflow-hidden
+                 ${isCurrentDay ? "bg-blue-900 border-blue-600" : ""}
                `}
             >
               {/* Numéro du jour */}
               <div
-                className={`text-sm text-gray-900 mb-2 relative z-10 ${
+                className={`text-sm text-gray-100 mb-2 relative z-10 ${
                   isCurrentDay ? "font-bold underline" : "font-medium"
                 }`}
               >

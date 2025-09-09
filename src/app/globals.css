@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,31 +12,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
+  background: #1a1a1a;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .naarzColor {
-  background-color: #ffad65;
+  background-color: #cc8a52;
 }
 
 .dagreatColor {
-  background-color: #aad372;
+  background-color: #88a95b;
 }
 
 .aisenColor {
-  background-color: #66c6e8;
+  background-color: #529eba;
 }
 
 .flavioColor {
-  background-color: #f48fb1;
+  background-color: #c3728e;
 }

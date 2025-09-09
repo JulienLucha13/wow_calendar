@@ -16,21 +16,23 @@ export default function SelectionUtilisateur({
 }: SelectionUtilisateurProps) {
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-4 text-gray-700">
+      <h2 className="text-xl font-semibold mb-4 text-gray-300">
         Sélectionner un utilisateur :
       </h2>
       <div className="flex flex-wrap gap-4">
         {users.map((user) => (
           <label
             key={user.name}
-            className="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border-2 transition-all hover:shadow-md"
+            className="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border-2 transition-all hover:shadow-md hover:shadow-gray-700"
             style={{
               borderColor:
                 selectedUser?.name === user.name
                   ? user.color.replace("bg-", "")
-                  : "#e5e7eb",
+                  : "#4b5563",
               backgroundColor:
-                selectedUser?.name === user.name ? `${user.color}20` : "white",
+                selectedUser?.name === user.name
+                  ? `${user.color}20`
+                  : "#374151",
             }}
           >
             <input
@@ -44,11 +46,11 @@ export default function SelectionUtilisateur({
             <div
               className={`w-4 h-4 rounded-full border-2 ${user.color} ${
                 selectedUser?.name === user.name
-                  ? "ring-2 ring-offset-2 ring-gray-400"
+                  ? "ring-2 ring-offset-2 ring-gray-500"
                   : ""
               }`}
             />
-            <span className="font-medium text-gray-700">{user.name}</span>
+            <span className="font-medium text-gray-300">{user.name}</span>
           </label>
         ))}
       </div>

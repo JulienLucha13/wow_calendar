@@ -41,14 +41,14 @@ export default function ColonneSemaine({
             key={startIndex + index}
             onClick={() => onDayClick(date)}
             className={`
-               min-h-[100px] p-3 border-b-2 border-gray-200 cursor-pointer transition-all
-               hover:bg-gray-50 relative overflow-hidden
-               ${isCurrentDay ? "bg-blue-50 border-blue-300" : ""}
+               min-h-[100px] p-3 border-b-2 border-gray-600 cursor-pointer transition-all
+               hover:bg-gray-700 relative overflow-hidden
+               ${isCurrentDay ? "bg-blue-900 border-blue-600" : ""}
              `}
           >
             {/* Numéro du jour */}
             <div
-              className={`text-sm text-gray-900 mb-2 relative z-10 ${
+              className={`text-sm text-gray-100 mb-2 relative z-10 ${
                 isCurrentDay ? "font-bold underline" : "font-medium"
               }`}
             >
