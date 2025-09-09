@@ -198,7 +198,7 @@ export default function Calendar() {
       </div>
 
       {!isMobile && (
-        <div className="flex justify-center items-center my-8">
+        <div className="flex justify-center items-center my-8 relative">
           <img src="/images/map.png" alt="Map" className="w-2/3 h-2/3" />
         </div>
       )}
